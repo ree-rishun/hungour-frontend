@@ -1,9 +1,8 @@
 module.exports = {
   devServer: {
     proxy: {
-      "^/api*": {
-        // target: "https://us-central1-line-bot-award.cloudfunctions.net",
-        pathRewrite: { "^/api": "" },
+      "^/hunger-gourmet/asia-northeast1*": {
+        target: "http://127.0.0.1:5001",
         changeOrigin: true,
         logLevel: "debug",
       }

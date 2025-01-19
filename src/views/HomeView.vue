@@ -9,12 +9,14 @@
     onMounted,
     ref,
   } from 'vue'
+  import axios from 'axios'
 
   const location = ref({
     lat: null,
     lng: null,
   })
   const errMessage = ref('')
+  const minRating = ref(3.0)
 
   onMounted(
     async () => {
@@ -25,6 +27,7 @@
       console.log(location.value)
 
       // 飲食店一覧の検索
+      // await getPlaces()
     }
   )
 
@@ -55,7 +58,19 @@
 
   // 飲食店一覧の検索
   const getPlaces = async () => {
+    const res = await axios.post(
+      'http://127.0.0.1:5001/hunger-gourmet/asia-northeast1/api/places/',
+      {
+        text: '焼き鳥',
+        lat: location.value.lat,
+        lng: location.value.lng,
+        minRating: minRating,
+        openNow: true,
+        includePureServiceAreaBusinesses: true,
+      }
+    )
 
+    console.log(res)
   }
 </script>
 
