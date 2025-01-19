@@ -159,7 +159,7 @@
     margin: 0 auto 32px;
   }
   .current_address {
-    margin: 8px auto 0;
+    margin: 0 auto;
     color: $color-white;
     height: 22px;
     line-height: 22px;

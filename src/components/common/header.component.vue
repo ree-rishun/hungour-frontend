@@ -17,7 +17,7 @@
       display: block;
       height: 36px;
       padding: 0;
-      margin: (($header-height - 36px) / 2) 0 0 16px;
+      margin: (($header-height - 36px) / 2) 0 0 5%;
     }
   }
 </style>
