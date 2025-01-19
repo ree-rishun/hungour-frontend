@@ -1,11 +1,9 @@
 <script setup>
 import { ref, watch, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { useStore } from 'vuex'
+import HeaderComponent from '@/components/common/header.component.vue'
 
 const route = useRoute()
-
-// await liff.init({ liffId: 'xxxxxxxx' })
 
 onMounted(() => {
 })
@@ -13,8 +11,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <header>
-  </header>
+  <HeaderComponent/>
   <main>
     <RouterView />
   </main>

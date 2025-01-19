@@ -39,10 +39,6 @@
       const position = await getLocation()
       location.value.lat = position.coords.latitude
       location.value.lng = position.coords.longitude
-      console.log(location.value)
-
-      // 飲食店一覧の検索
-      await getPlaces()
     }
   )
 
