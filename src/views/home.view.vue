@@ -1,6 +1,19 @@
 <template>
   <div>
+    <div
+      class="shopInfo"
+      v-for="shop in shops">
+      <h3>
+        {{ shop.displayName.text }}
+      </h3>
 
+      <starRateComponent
+        :score="shop?.rating ?? 0"/>
+
+      <p>
+      予算：{{ shop?.priceRange?.startPrice?.units ?? '-' }} ～ {{ shop?.priceRange?.endPrice?.units ?? '-' }}円
+      </p>
+    </div>
   </div>
 </template>
 
@@ -10,6 +23,7 @@
     ref,
   } from 'vue'
   import axios from 'axios'
+  import starRateComponent from '../components/starRate.component.vue'
 
   const location = ref({
     lat: null,
@@ -17,6 +31,7 @@
   })
   const errMessage = ref('')
   const minRating = ref(3.0)
+  const shops = ref([])
 
   onMounted(
     async () => {
@@ -27,7 +42,7 @@
       console.log(location.value)
 
       // 飲食店一覧の検索
-      // await getPlaces()
+      await getPlaces()
     }
   )
 
@@ -61,19 +76,32 @@
     const res = await axios.post(
       'http://127.0.0.1:5001/hunger-gourmet/asia-northeast1/api/places/',
       {
-        text: '焼き鳥',
+        text: '居酒屋',
         lat: location.value.lat,
         lng: location.value.lng,
-        minRating: minRating,
-        openNow: true,
-        includePureServiceAreaBusinesses: true,
+        radius: 10000,
+        min_rating: minRating.value,
+        open_now: true,
+        include_pure_service_area_businesses: true,
+        departure_in_minutes: 5,
       }
     )
 
     console.log(res)
+    shops.value = res.data
+  }
+
+  // 予約の開始
+  const startReserve = async () => {
+    // TODO: Firestoreに予約対象を保存
+
+    // TODO: 予約状況ページへ遷移
   }
 </script>
 
 
 <style lang="scss" scoped>
+  .shopInfo {
+    margin: 0 auto 32px;
+  }
 </style>
