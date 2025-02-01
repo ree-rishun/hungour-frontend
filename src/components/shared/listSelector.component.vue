@@ -15,7 +15,7 @@
 
   const props = defineProps({
     listObj: {
-      type: Object,
+      type: Array,
       required: true,
     },
     checked: {
