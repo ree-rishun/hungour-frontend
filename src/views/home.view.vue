@@ -1,27 +1,48 @@
 <template>
-  <p
-    v-if="currentAddress"
-    class="current_address">
+  <currentAddressComponent
+    :currentAddress="currentAddress" />
+  <div
+    class="search_bar">
     <img
-      src="@/assets/img/icon/location_pin.svg"
-      alt="位置情報ピン">
-    {{ currentAddress }}
+      src="@/assets/img/icon/search.svg"
+      alt="検索アイコン">
+    <input
+      type="text"
+      placeholder="焼き鳥">
+  </div>
+  <sectionSubTitleComponent
+    title="出発可能な時間"/>
+  <listSelectorComponent
+    :listObj="departureTimes"
+    @changed=""/>
+
+  <sectionSubTitleComponent
+    title="予約人数"/>
+  <listSelectorComponent
+    :listObj="reservationCounts" />
+
+  <sectionTitleComponent
+    title="詳細検索"/>
+  <p
+    class="plane_text">
+    ここで指定された内容は電話時に口頭で確認するため検索結果が必ず満たすものではありません。
   </p>
-  <div>
-    <div
-      class="shopInfo"
-      v-for="shop in shops">
-      <h3>
-        {{ shop.displayName.text }}
-      </h3>
 
-      <starRateComponent
-        :score="shop?.rating ?? 0"/>
-
-      <p>
-      予算：{{ shop?.priceRange?.startPrice?.units ?? '-' }} ～ {{ shop?.priceRange?.endPrice?.units ?? '-' }}円
-      </p>
-    </div>
+  <sectionSubTitleComponent
+    title="座席タイプ"/>
+  <listSelectorComponent
+    :listObj="tableType"
+    selected="none" />
+  <matchModalComponent
+    v-if="mode === 'match'"
+    :shops="shops"/>
+  <div
+    class="bottom_area">
+    <button
+      class="submit-button"
+      @click="searchShops">
+      お店を探す
+    </button>
   </div>
 </template>
 
@@ -31,7 +52,13 @@
     ref,
   } from 'vue'
   import axios from 'axios'
-  import starRateComponent from '../components/starRate.component.vue'
+  import currentAddressComponent from '../components/shared/currentAddress.component.vue'
+  import sectionTitleComponent from '../components/shared/sectionTitle.component.vue'
+  import sectionSubTitleComponent from '../components/shared/sectionSubTitle.component.vue'
+  import listSelectorComponent from '../components/shared/listSelector.component.vue'
+  import matchModalComponent from '../components/home/matchModal.component.vue'
+  import { getPlaces } from '../services/places.service.js'
+  import { getGeocode } from '../services/geocode.service.js'
 
   const location = ref({
     lat: null,
@@ -40,7 +67,104 @@
   const errMessage = ref('')
   const minRating = ref(3.0)
   const shops = ref([])
-  const currentAddress = ref(null)
+  const currentAddress = ref('')
+  const mode = ref('default')
+
+  const departureTimes = ref([
+    {
+      id: 0,
+      label: '今すぐ',
+    },
+    {
+      id: 5,
+      label: '5分後',
+    },
+    {
+      id: 10,
+      label: '10分後',
+    },
+    {
+      id: 15,
+      label: '15分後',
+    },
+    {
+      id: 20,
+      label: '20分後',
+    },
+    {
+      id: 30,
+      label: '30分後',
+    },
+    {
+      id: 45,
+      label: '45分後',
+    },
+    {
+      id: 60,
+      label: '60分後',
+    },
+  ])
+  const reservationCounts = ref([
+    {
+      id: 1,
+      label: '1名',
+    },
+    {
+      id: 2,
+      label: '2名',
+    },
+    {
+      id: 3,
+      label: '3名',
+    },
+    {
+      id: 4,
+      label: '4名',
+    },
+    {
+      id: 5,
+      label: '5名',
+    },
+    {
+      id: 6,
+      label: '6名',
+    },
+    {
+      id: 7,
+      label: '7名',
+    },
+    {
+      id: 8,
+      label: '8名',
+    },
+    {
+      id: 9,
+      label: '9名',
+    },
+    {
+      id: 10,
+      label: '10名',
+    },
+  ])
+  const tableType = ref([
+    {
+      id: 'none',
+      label: 'こだわりなし',
+    },
+    {
+      id: 'room',
+      label: '個室',
+    },
+    {
+      id: 'table',
+      label: 'テーブル',
+    },
+    {
+      id: 'counter',
+      label: 'カウンター',
+    },
+  ])
+  const departureTime = ref(null)
 
   onMounted(
     async () => {
@@ -49,8 +173,9 @@
       location.value.lat = position.coords.latitude
       location.value.lng = position.coords.longitude
 
-      const addr = await getAddress()
-      currentAddress.value = buildShortAddress(addr)
+      // 現在の住所を表示
+      const res = await getGeocode(location.value)
+      currentAddress.value = buildShortAddress(res.data.results[0])
     }
   )
 
@@ -79,42 +204,21 @@
     })
   }
 
-  // 座標から住所文字列の取得
-  const getAddress = async () => {
-    const res = await axios.get(
-      `http://127.0.0.1:5001/hunger-gourmet/asia-northeast1/api/geocode/?lat=${location.value.lat}&lng=${location.value.lng}`,
-    )
-    console.log(res)
-
-    return res.data.results[0]
-  }
-
   // 飲食店一覧の検索
-  const getPlaces = async () => {
-    const res = await axios.post(
-      'http://127.0.0.1:5001/hunger-gourmet/asia-northeast1/api/places/',
-      {
-        text: '居酒屋',
-        lat: location.value.lat,
-        lng: location.value.lng,
-        radius: 10000,
-        min_rating: minRating.value,
-        open_now: true,
-        include_pure_service_area_businesses: true,
-        departure_in_minutes: 5,
-      }
+  const searchShops = async () => {
+    mode.value = 'match'
+    const res = await getPlaces(
+      location.value,
+      minRating.value,
     )
-
-    console.log(res)
     shops.value = res.data
   }
 
+  // 短縮住所の組立
   const buildShortAddress = (data) => {
     const area = data.address_components.find(component =>
       component.types.includes("administrative_area_level_1")
     )
-
-    console.log(data)
 
     if (area?.long_name ?? null) {
       const index = data.formatted_address.indexOf(area.long_name)
@@ -122,7 +226,6 @@
         return data.formatted_address.slice(index + area.long_name.length)
       }
     }
-
 
     // 区以下の要素をフィルタリングするタイプ
     const targetTypes = [
@@ -158,18 +261,58 @@
   .shopInfo {
     margin: 0 auto 32px;
   }
-  .current_address {
-    margin: 0 auto;
-    color: $color-white;
-    height: 22px;
-    line-height: 22px;
-    vertical-align: middle;
+  .search_bar {
+    display: block;
+    height: 48px;
+    margin: 16px auto 0;
+    background-color: $color-gray;
+    border-radius: 4px;
 
     img {
-      display: inline-block;
-      height: 22px;
-      margin: 0 4px 0 0;
-      vertical-align: middle;
+      height: 24px;
+      vertical-align: top;
+      margin: 12px 0 0 8px;
     }
+    input[type=text] {
+      outline: none;
+      border: none;
+      background: none;
+
+      display: inline-block;
+      width: calc(100% - 24px - 8px - 32px - 8px);
+      height: 48px;
+      margin: 0 0 0 8px;
+      line-height: 48px;
+      vertical-align: top;
+      font-weight: bolder;
+      font-size: $font-std;
+      color: $color-white;
+    }
+  }
+  .plane_text {
+    margin: 4px auto 0;
+    font-weight: normal;
+    font-size: $font-std;
+    color: $color-light-gray;
+  }
+  .submit-button {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 400px;
+    height: 48px;
+    line-height: 48px;
+    border-radius: 24px;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 20px;
+    background: linear-gradient(90deg, #DB36A4 0%, #FFC300 100%);
+  }
+  .bottom_area {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: calc(100% - 32px);
+    padding: 0 16px 16px;
   }
 </style>
