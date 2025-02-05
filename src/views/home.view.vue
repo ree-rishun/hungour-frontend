@@ -35,7 +35,8 @@
     selected="none" />
   <matchModalComponent
     v-if="mode === 'match'"
-    :shops="shops"/>
+    :shops="shops"
+    @completed="startReserve" />
   <div
     class="bottom_area">
     <button
@@ -59,7 +60,10 @@
   import matchModalComponent from '../components/home/matchModal.component.vue'
   import { getPlaces } from '../services/places.service.js'
   import { getGeocode } from '../services/geocode.service.js'
+  import { useShopStore } from '../store/shop.store.js'
+  import router from '../router'
 
+  const shopStore = useShopStore()
   const location = ref({
     lat: null,
     lng: null,
@@ -249,10 +253,12 @@
   }
 
   // 予約の開始
-  const startReserve = async () => {
-    // TODO: Firestoreに予約対象を保存
+  const startReserve = async (likedShops) => {
+    // 予約対象をローカルに保持
+    shopStore.setShops(likedShops)
 
-    // TODO: 予約状況ページへ遷移
+    // 予約ページへ遷移
+    router.push('/reserve')
   }
 </script>
 

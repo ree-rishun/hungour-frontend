@@ -12,7 +12,7 @@ export const getPlaces = async (
       text: text,
       lat: location.lat,
       lng: location.lng,
-      radius: 5000,
+      radius: 10000,
       min_rating: minRating,
       open_now: true,
       include_pure_service_area_businesses: true,

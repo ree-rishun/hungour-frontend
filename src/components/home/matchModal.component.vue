@@ -2,37 +2,37 @@
   <div
     class="background">
     <div
+      v-if="queue.length > 0"
       class="current-review">
       <p
         class="current-review_rate">
-        {{ shops[0]?.rating ?? 0 }}
+        {{ queue[0]?.rating ?? 0 }}
       </p>
       <p>
-        {{shops[0]?.userRatingCount ?? 0}}件のクチコミ
+        {{queue[0]?.userRatingCount ?? 0}}件のクチコミ
       </p>
       <starRateComponent
-        :score="String(shops[0]?.rating ?? 0)"
+        :score="String(queue[0]?.rating ?? 0)"
         :imageSize="48"/>
     </div>
     <vueTinder
-      v-if="props.shops.length > 0"
+      v-if="queue.length > 0"
+      class="vue_tinder"
       ref="tinder"
       key-name="id"
-      :queue="shops"
+      v-model:queue="queue"
       :max="3"
       :offset-y="0"
       allow-down
-      class="vue_tinder"
       @submit="onSubmit">
       <template
-        v-slot="{data, i}">
+        #default="{ data }">
         <div
-          class="card"
-          :key="data?.id ?? i">
+          class="card">
           <div
             class="shop-image"
             :style="{
-            'background-image': `url(${getPhoto(data.photos[0].name)})`
+            'background-image': `url(${getPhoto(data?.photos[0].name)})`
           }">
             <div
               class="shop-image_mask">
@@ -54,6 +54,21 @@
           </ul>
         </div>
       </template>
+      <template #like>
+        like
+      </template>
+      <template #nope>
+        nope
+      </template>
+      <template #super>
+        super
+      </template>
+      <template #down>
+        down
+      </template>
+      <template #rewind>
+        rewind
+      </template>
       <!--
       <img class="like-pointer" slot="like" src="./assets/nope-txt.png">
       <img class="nope-pointer" slot="nope" src="./assets/nope-txt.png">
@@ -61,6 +76,18 @@
       <img class="rewind-pointer" slot="rewind" src="./assets/rewind-txt.png">
       -->
     </vueTinder>
+  </div>
+  <div
+    class="progress">
+    <p>
+      {{ shopCandidates.length }} / 3 完了
+    </p>
+    <div
+      class="progress__bar">
+      <span
+        :style="`width: ${34 * shopCandidates.length}%;`"
+      ></span>
+    </div>
   </div>
 </template>
 
@@ -83,14 +110,43 @@
       },
     }
   )
+  const emits = defineEmits(['completed'])
+  const queue = ref([])
   const shops = ref([])
+  const offset = ref(0)
+  const shopCandidates = ref([])
+
+  const mock = (count = 5, append = true) => {
+    const list = []
+    // TODO: 次のリストを取得
+    for (let i = 0; i < count; i++) {
+      list.push(shops.value[offset.value])
+      offset.value++
+    }
+    if (append) {
+      queue.value = queue.value.concat(list)
+    } else {
+      queue.value.unshift(...list)
+    }
+  }
 
   const onSubmit = (e) => {
-    console.log(shops.value)
     console.log(e)
+    if (e.type === 'like') {
+      shopCandidates.value.push(e.item)
+      if (shopCandidates.value.length >= 3) {
+        emits('completed', shopCandidates.value)
+      }
+    }
+    if (queue.value.length < 3) {
+      mock()
+    }
   }
 
   const convToJST = (utcDateString) => {
+    if (!utcDateString) {
+      return '24時間'
+    }
     const d = new Date(utcDateString)
 
     const hours = String(d.getHours()).padStart(2, '0')
@@ -106,13 +162,16 @@
   onMounted(
     () => {
       shops.value = props.shops
-      console.log(shops.value)
+      queue.value = props.shops
     }
   )
 
   watchEffect(
     () => {
-    shops.value = props.shops
+      shops.value = props.shops
+      if (shops.value.length > 0 && queue.value.length === 0) {
+        mock()
+      }
   })
 </script>
 
@@ -145,10 +204,11 @@
     .card {
       height: 600px;
       max-height: 60vh;
+      border: 2px solid $color-primary-main;
       border-radius: 8px;
-      border: solid $color-primary-main 2px;
       color: #ffffff;
       background-color: $color-background;
+      overflow: hidden;
 
       .shop-image {
         position: relative;
@@ -189,6 +249,36 @@
           }
         }
       }
+    }
+  }
+  .progress {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    z-index: 201;
+    padding: 0 16px 8px;
+    display: block;
+    width: calc(100% - 32px);
+    max-width: 400px;
+    p {
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .progress__bar {
+      width: 100%;
+      height: 8px;
+      margin: 4px auto 0;
+      border-radius: 4px;
+      background-color: $color-gray;
+    }
+    span {
+      display: block;
+      height: 8px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #DB36A4 0%, #FFC300 100%);
+      transition: width 0.5s ease;
     }
   }
 </style>

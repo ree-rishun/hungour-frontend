@@ -32,9 +32,6 @@
           src="@/assets/img/icon/star_fine.svg"/>
       </span>
     </span>
-    <span>
-      {{ props.score === 0 ? '-' : props.score }}
-    </span>
   </div>
 </template>
 
