@@ -9,17 +9,19 @@
   </p>
 </template>
 
-<script setup>
+<script
+  setup>
   const props = defineProps({
     currentAddress: {
       type: String,
       required: true,
     }
   })
-
 </script>
 
-<style scoped lang="scss">
+<style
+  scoped
+  lang="scss">
   .current_address {
     margin: 0 auto;
     color: $color-white;
