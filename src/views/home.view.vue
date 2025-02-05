@@ -45,6 +45,7 @@
     class="bottom_area">
     <buttonComponent
       text="お店を探す"
+      :enable="departureTime !== null && partySize !== null"
       @clicked="searchShops" />
   </div>
 </template>

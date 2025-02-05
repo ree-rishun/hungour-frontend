@@ -62,11 +62,13 @@
     background-color: $color-gray;
     color: #ffffff;
     cursor: pointer;
+    transition: 0.2s ease;
 
     &.selected {
       background-color: $color-primary-main;
       color: $color-black;
       font-weight: bold;
+      transition: 0.2s ease;
     }
   }
 </style>

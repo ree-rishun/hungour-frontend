@@ -1,6 +1,7 @@
 <template>
   <button
-    @click="clicked">
+    @click="clicked"
+    :class="{ disable : !props.enable }">
     {{ props.text }}
   </button>
 </template>
@@ -12,10 +13,18 @@
       type: String,
       required: true,
     },
+    enable: {
+      type: Boolean,
+      required: false,
+      defalut: true,
+    }
   })
   const emits = defineEmits(['clicked'])
 
   const clicked = () => {
+    if (!props.enable) {
+      return
+    }
     emits('clicked')
   }
 </script>
@@ -35,5 +44,10 @@
     font-weight: bold;
     font-size: 20px;
     background: linear-gradient(90deg, #DB36A4 0%, #FFC300 100%);
+    transition: background .5s ease;
+
+    &.disable {
+      background: $color-gray;
+    }
   }
 </style>
