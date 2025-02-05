@@ -51,15 +51,15 @@
     ref,
   } from 'vue'
   import axios from 'axios'
-  import currentAddressComponent from '../components/shared/currentAddress.component.vue'
-  import sectionTitleComponent from '../components/shared/sectionTitle.component.vue'
-  import sectionSubTitleComponent from '../components/shared/sectionSubTitle.component.vue'
-  import listSelectorComponent from '../components/shared/listSelector.component.vue'
-  import matchModalComponent from '../components/home/matchModal.component.vue'
+  import currentAddressComponent from '@/components/shared/currentAddress.component.vue'
+  import sectionTitleComponent from '@/components/shared/sectionTitle.component.vue'
+  import sectionSubTitleComponent from '@/components/shared/sectionSubTitle.component.vue'
+  import listSelectorComponent from '@/components/shared/listSelector.component.vue'
+  import matchModalComponent from '@/components/home/matchModal.component.vue'
   import buttonComponent from '@/components/shared/button.component.vue'
-  import { getPlaces } from '../services/places.service.js'
-  import { getGeocode } from '../services/geocode.service.js'
-  import { useShopStore } from '../store/shop.store.js'
+  import { getPlaces } from '@/services/places.service.js'
+  import { getGeocode } from '@/services/geocode.service.js'
+  import { useShopStore } from '@/store/shop.store.js'
   import router from '../router'
 
   const shopStore = useShopStore()
