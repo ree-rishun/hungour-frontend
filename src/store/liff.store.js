@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useRouter } from 'vue-router'
 import liff from '@line/liff'
 import { userSignin } from '@/services/users.service.js'
 
@@ -12,24 +13,19 @@ export const useStoreLiff = defineStore('liff', {
       await liff.init({
         liffId: import.meta.env.VITE_LIFF_ID,
       })
-        .then(async () => {
-          if (liff.isLoggedIn()) {
-            this.isLogedIn = true
-            const profile = await liff.getProfile()
-            console.log(profile)
-            const res = await userSignin(
-              profile.userId,
-              profile.pictureUrl,
-              profile.displayName,
-            )
-            console.log(res)
-          } else {
-            await this.login()
-          }
-        })
-        .catch((e) => {
-          console.log(e)
-        })
+      if (liff.isLoggedIn()) {
+        if (liff.isLoggedIn()) {
+          this.isLogedIn = true
+          const profile = await liff.getProfile()
+          return await userSignin(
+            profile.userId,
+            profile.pictureUrl,
+            profile.displayName,
+          )
+        } else {
+          await this.login()
+        }
+      }
     },
     setToken(token) {
       this.token = token

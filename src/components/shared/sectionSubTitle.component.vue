@@ -16,7 +16,7 @@
 
 <style scoped lang="scss">
   h3 {
-    margin: 8px auto 0;
+    margin: 16px auto 0;
     font-size: $font-std;
     font-weight: bold;
     color: #ffffff;

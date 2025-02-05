@@ -55,7 +55,7 @@
     onMounted,
     ref,
   } from 'vue'
-  import axios from 'axios'
+  import { useRouter } from 'vue-router'
   import currentAddressComponent from '@/components/shared/currentAddress.component.vue'
   import sectionTitleComponent from '@/components/shared/sectionTitle.component.vue'
   import sectionSubTitleComponent from '@/components/shared/sectionSubTitle.component.vue'
@@ -67,8 +67,8 @@
   import { postReserve } from '@/services/reserve.service.js'
   import { departureTimes, reservationCounts, tableType, } from '@/constants/labels.constant.js'
   import { getLocation, buildShortAddress } from '@/utils/geocode.util.js'
-  import router from '../router'
 
+  const router = useRouter()
   const location = ref({
     lat: null,
     lng: null,
