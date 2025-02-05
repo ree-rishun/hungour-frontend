@@ -14,12 +14,13 @@
     title="出発可能な時間"/>
   <listSelectorComponent
     :listObj="departureTimes"
-    @changed=""/>
+    @changed="updateDepartureTime"/>
 
   <sectionSubTitleComponent
     title="予約人数"/>
   <listSelectorComponent
-    :listObj="reservationCounts" />
+    :listObj="reservationCounts"
+    @changed="updatePartySize" />
 
   <sectionTitleComponent
     title="詳細検索"/>
@@ -32,11 +33,14 @@
     title="座席タイプ"/>
   <listSelectorComponent
     :listObj="tableType"
-    selected="none" />
+    selected="none"
+    @changed="updateSeatType"/>
+
   <matchModalComponent
     v-if="mode === 'match'"
     :shops="shops"
     @completed="startReserve" />
+
   <div
     class="bottom_area">
     <buttonComponent
@@ -59,10 +63,10 @@
   import buttonComponent from '@/components/shared/button.component.vue'
   import { getPlaces } from '@/services/places.service.js'
   import { getGeocode } from '@/services/geocode.service.js'
-  import { useShopStore } from '@/store/shop.store.js'
+  import { postReserve } from '@/services/reserve.service.js'
+  import { departureTimes, reservationCounts, tableType, } from '@/constants/labels.constant.js'
   import router from '../router'
 
-  const shopStore = useShopStore()
   const location = ref({
     lat: null,
     lng: null,
@@ -73,101 +77,9 @@
   const currentAddress = ref('')
   const mode = ref('default')
 
-  const departureTimes = ref([
-    {
-      id: 0,
-      label: '今すぐ',
-    },
-    {
-      id: 5,
-      label: '5分後',
-    },
-    {
-      id: 10,
-      label: '10分後',
-    },
-    {
-      id: 15,
-      label: '15分後',
-    },
-    {
-      id: 20,
-      label: '20分後',
-    },
-    {
-      id: 30,
-      label: '30分後',
-    },
-    {
-      id: 45,
-      label: '45分後',
-    },
-    {
-      id: 60,
-      label: '60分後',
-    },
-  ])
-  const reservationCounts = ref([
-    {
-      id: 1,
-      label: '1名',
-    },
-    {
-      id: 2,
-      label: '2名',
-    },
-    {
-      id: 3,
-      label: '3名',
-    },
-    {
-      id: 4,
-      label: '4名',
-    },
-    {
-      id: 5,
-      label: '5名',
-    },
-    {
-      id: 6,
-      label: '6名',
-    },
-    {
-      id: 7,
-      label: '7名',
-    },
-    {
-      id: 8,
-      label: '8名',
-    },
-    {
-      id: 9,
-      label: '9名',
-    },
-    {
-      id: 10,
-      label: '10名',
-    },
-  ])
-  const tableType = ref([
-    {
-      id: 'none',
-      label: 'こだわりなし',
-    },
-    {
-      id: 'room',
-      label: '個室',
-    },
-    {
-      id: 'table',
-      label: 'テーブル',
-    },
-    {
-      id: 'counter',
-      label: 'カウンター',
-    },
-  ])
   const departureTime = ref(null)
+  const partySize = ref(null)
+  const seatType = ref(null)
 
   onMounted(
     async () => {
@@ -181,6 +93,17 @@
       currentAddress.value = buildShortAddress(res.data.results[0])
     }
   )
+
+  const updateDepartureTime = (val) => {
+    departureTime.value = val
+    console.log(departureTime.value)
+  }
+  const updatePartySize = (val) => {
+    partySize.value = val
+  }
+  const updateSeatType = (val) => {
+    seatType.value = val
+  }
 
   // 現在地の取得
   const getLocation = () => {
@@ -253,11 +176,17 @@
 
   // 予約の開始
   const startReserve = async (likedShops) => {
-    // 予約対象をローカルに保持
-    shopStore.setShops(likedShops)
+    // 予約を作成
+    const res = await postReserve(
+      likedShops,
+      departureTime.value,
+      partySize.value,
+      seatType.value,
+      location.value,
+    )
 
     // 予約ページへ遷移
-    router.push('/reserve')
+    router.push(`/reserves/${res.data.id}`)
   }
 </script>
 

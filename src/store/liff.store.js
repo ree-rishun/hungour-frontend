@@ -5,6 +5,7 @@ import { userSignin } from '@/services/users.service.js'
 export const useStoreLiff = defineStore('liff', {
   state: () => ({
     token: '',
+    isLogedIn: false,
   }),
   actions: {
     async init() {
@@ -13,6 +14,7 @@ export const useStoreLiff = defineStore('liff', {
       })
         .then(async () => {
           if (liff.isLoggedIn()) {
+            this.isLogedIn = true
             const profile = await liff.getProfile()
             console.log(profile)
             const res = await userSignin(
@@ -33,7 +35,10 @@ export const useStoreLiff = defineStore('liff', {
       this.token = token
     },
     async getProfile() {
-      return await liff.getProfile()
+      if (this.isLogedIn) {
+        return await liff.getProfile()
+      }
+      return null
     },
     async getToken() {
       if (!liff.isLoggedIn()) {

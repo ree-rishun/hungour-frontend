@@ -2,8 +2,26 @@
   <currentAddressComponent
     :currentAddress="currentAddress" />
 
+  <h2
+    v-if="reserve"
+    class="about">
+    <span>
+      {{ departureTimes.find(item => item.id === reserve.departure_time).label }}
+    </span>に出発予定で<span>
+      {{ reservationCounts.find(item => item.id === reserve.party_size).label }}
+    </span>で予約。
+  </h2>
+
   <sectionTitleComponent
-    title="予約お店リスト"/>
+    title="詳細検索"/>
+  <p
+    v-if="reserve"
+    class="plane_text">
+    座席タイプ：{{ tableType.find(item => item.id === reserve.seat_type).label }}
+  </p>
+
+  <sectionTitleComponent
+    title="予約候補"/>
   <p
     class="plane_text">
     リストの上から予約を行うため、行きたいお店を上から順に並べることをお勧めします。
@@ -22,7 +40,7 @@
 
 <script setup>
   import { onMounted, ref } from 'vue'
-  import { useShopStore } from '@/store/shop.store.js'
+  import { useRoute, useRouter } from 'vue-router'
   import currentAddressComponent from '@/components/shared/currentAddress.component.vue'
   import sectionTitleComponent from '@/components/shared/sectionTitle.component.vue'
   import sectionSubTitleComponent from '@/components/shared/sectionSubTitle.component.vue'
@@ -31,12 +49,16 @@
   import buttonComponent from '@/components/shared/button.component.vue'
   import shopsSortComponent from '@/components/reserve/shopsSort.component.vue'
   import { getGeocode } from '@/services/geocode.service.js'
-  import { postReserve } from '@/services/reserve.service.js'
+  import { getReserve, postStartReserve } from '@/services/reserve.service.js'
+  import { departureTimes, reservationCounts, tableType, } from '@/constants/labels.constant.js'
 
-  const shopStore = useShopStore()
+  const route = useRoute()
+  const router = useRouter()
   const sortedShops = ref([])
+  const reserve = ref(null)
   const shops = ref([])
   const currentAddress = ref('')
+  const reserveId = ref('')
   const location = ref({
     lat: null,
     lng: null,
@@ -49,12 +71,19 @@
       location.value.lat = position.coords.latitude
       location.value.lng = position.coords.longitude
 
+      reserveId.value = route.params.id
+
       // 現在の住所を表示
       const res = await getGeocode(location.value)
       currentAddress.value = buildShortAddress(res.data.results[0])
 
-      console.log(shopStore.shops)
-      shops.value = shopStore.shops
+      const reserveRes = await getReserve(reserveId.value)
+      if (reserveRes.data.status !== 'created') {
+        router.push(`/reserves/${reserveId.value}/status`)
+      }
+      shops.value = reserveRes.data.list
+      reserve.value = reserveRes.data
+      console.log(reserve.value)
       sortedShops.value = shops.value
     }
   )
@@ -92,12 +121,14 @@
   // 予約処理の開始と次のページへの遷移
   const startReserve = async () => {
     // Firestoreにデータの保存
-    const res = await postReserve(
+    const res = await postStartReserve(
+      reserveId.value,
       sortedShops.value,
     )
     console.log(res)
 
     // TODO: 予約ステータスページに遷移
+    router.push(`/reserves/${reserveId.value}/status`)
   }
 
   // 短縮住所の組立
@@ -136,7 +167,16 @@
 </script>
 
 <style scoped lang="scss">
-
+  .about {
+    margin: 16px auto 0;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    span {
+      color: $color-primary-main;
+      font-size: 20px;
+    }
+  }
   .plane_text {
     margin: 4px auto 0;
     font-weight: normal;

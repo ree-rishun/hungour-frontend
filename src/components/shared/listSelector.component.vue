@@ -33,7 +33,7 @@
 
   onMounted(
     () => {
-      selected.value = props.selected
+      changeCursor(props.selected)
     }
   )
 
