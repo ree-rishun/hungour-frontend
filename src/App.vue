@@ -1,21 +1,22 @@
-<script setup>
-import { ref, watch, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import HeaderComponent from '@/components/common/header.component.vue'
-
-const route = useRoute()
-
-onMounted(() => {
-})
-
-</script>
-
 <template>
   <HeaderComponent/>
   <main>
     <RouterView />
   </main>
 </template>
+
+<script
+  setup>
+  import { ref, watch, computed, onMounted } from 'vue'
+  import { useStoreLiff } from '@/store/liff.store.js'
+  import HeaderComponent from '@/components/common/header.component.vue'
+
+  const liffStore = useStoreLiff()
+
+  onMounted(async () => {
+    liffStore.init()
+  })
+</script>
 
 <style lang="scss" scoped>
   main {
