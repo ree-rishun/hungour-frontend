@@ -39,11 +39,9 @@
     @completed="startReserve" />
   <div
     class="bottom_area">
-    <button
-      class="submit-button"
-      @click="searchShops">
-      お店を探す
-    </button>
+    <buttonComponent
+      text="お店を探す"
+      @clicked="searchShops" />
   </div>
 </template>
 
@@ -58,6 +56,7 @@
   import sectionSubTitleComponent from '../components/shared/sectionSubTitle.component.vue'
   import listSelectorComponent from '../components/shared/listSelector.component.vue'
   import matchModalComponent from '../components/home/matchModal.component.vue'
+  import buttonComponent from '@/components/shared/button.component.vue'
   import { getPlaces } from '../services/places.service.js'
   import { getGeocode } from '../services/geocode.service.js'
   import { useShopStore } from '../store/shop.store.js'
@@ -300,19 +299,6 @@
     font-weight: normal;
     font-size: $font-std;
     color: $color-light-gray;
-  }
-  .submit-button {
-    display: block;
-    margin: 0 auto;
-    width: 100%;
-    max-width: 400px;
-    height: 48px;
-    line-height: 48px;
-    border-radius: 24px;
-    color: #ffffff;
-    font-weight: bold;
-    font-size: 20px;
-    background: linear-gradient(90deg, #DB36A4 0%, #FFC300 100%);
   }
   .bottom_area {
     position: fixed;
