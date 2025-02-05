@@ -65,6 +65,7 @@
   import { getGeocode } from '@/services/geocode.service.js'
   import { postReserve } from '@/services/reserve.service.js'
   import { departureTimes, reservationCounts, tableType, } from '@/constants/labels.constant.js'
+  import { getLocation, buildShortAddress } from '@/utils/geocode.util.js'
   import router from '../router'
 
   const location = ref({
@@ -84,15 +85,16 @@
   onMounted(
     async () => {
       // 現在地の取得
-      const position = await getLocation()
-      location.value.lat = position.coords.latitude
-      location.value.lng = position.coords.longitude
-
-      // 現在の住所を表示
-      const res = await getGeocode(location.value)
-      currentAddress.value = buildShortAddress(res.data.results[0])
+      location.value = await getLocation()
+      getAddress()
     }
   )
+
+  const getAddress = async () => {
+    // 現在の住所を表示
+    const res = await getGeocode(location.value)
+    currentAddress.value = buildShortAddress(res.data.results[0])
+  }
 
   const updateDepartureTime = (val) => {
     departureTime.value = val
@@ -105,31 +107,6 @@
     seatType.value = val
   }
 
-  // 現在地の取得
-  const getLocation = () => {
-    return new Promise((resolve, reject) => {
-      if ('geolocation' in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          position => resolve(position),
-          err => {
-            errMessage.value = '不明なエラーが発生しました'
-            if (err.code === err.PERMISSION_DENIED) {
-              errMessage.value = '位置情報の取得が許可されていません'
-            }
-            if (err.code === err.POSITION_UNAVAILABLE) {
-              errMessage.value = '位置情報を取得できませんでした'
-            }
-            if (err.code === err.TIMEOUT) {
-              errMessage.value = '位置情報の取得にタイムアウトしました'
-            }
-          }
-        )
-      } else {
-        errMessage.value = 'Geolocation API がサポートされていません'
-      }
-    })
-  }
-
   // 飲食店一覧の検索
   const searchShops = async () => {
     mode.value = 'match'
@@ -138,40 +115,6 @@
       minRating.value,
     )
     shops.value = res.data
-  }
-
-  // 短縮住所の組立
-  const buildShortAddress = (data) => {
-    const area = data.address_components.find(component =>
-      component.types.includes("administrative_area_level_1")
-    )
-
-    if (area?.long_name ?? null) {
-      const index = data.formatted_address.indexOf(area.long_name)
-      if (index) {
-        return data.formatted_address.slice(index + area.long_name.length)
-      }
-    }
-
-    // 区以下の要素をフィルタリングするタイプ
-    const targetTypes = [
-      'locality',               // 区
-      'sublocality_level_2',    // 地域名（例: 歌舞伎町）
-      'sublocality_level_3',    // 丁目（例: １丁目）
-      'sublocality_level_4',    // 丁番（例: ４）
-      'premise'                 // 建物名や施設名（例: １）
-    ]
-
-    // 条件に一致する要素を順番に取得
-    const filteredComponents = data.address_components.filter(component =>
-      component.types.some(type => targetTypes.includes(type))
-    )
-
-    // 各要素の long_name を連結して住所を生成
-    return filteredComponents
-      .reverse()
-      .map(component => component.long_name)
-      .join('')
   }
 
   // 予約の開始
