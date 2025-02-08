@@ -1,6 +1,7 @@
 import HomeView from '../views/home.view.vue'
 import ReserveView from '../views/reserve/index.view.vue'
 import ReserveStatusView from  '../views/reserve/status.view.vue'
+import MypageSignupView from  '../views/mypage/signup.view.vue'
 
 export default [
   {
