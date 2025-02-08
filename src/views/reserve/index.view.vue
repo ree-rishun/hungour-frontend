@@ -110,7 +110,7 @@
     // Firestoreにデータの保存
     const res = await postStartReserve(
       reserveId.value,
-      sortedShops.value,
+      shopList,
     )
     console.log(res)
 
