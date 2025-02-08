@@ -10,21 +10,20 @@ export const useStoreLiff = defineStore('liff', {
   }),
   actions: {
     async init() {
+      console.log(`liff : ${import.meta.env.VITE_LIFF_ID}`)
       await liff.init({
         liffId: import.meta.env.VITE_LIFF_ID,
       })
       if (liff.isLoggedIn()) {
-        if (liff.isLoggedIn()) {
-          this.isLogedIn = true
-          const profile = await liff.getProfile()
-          return await userSignin(
-            profile.userId,
-            profile.pictureUrl,
-            profile.displayName,
-          )
-        } else {
-          await this.login()
-        }
+        this.isLogedIn = true
+        const profile = await liff.getProfile()
+        return await userSignin(
+          profile.userId,
+          profile.pictureUrl,
+          profile.displayName,
+        )
+      } else {
+        await this.login()
       }
     },
     setToken(token) {
