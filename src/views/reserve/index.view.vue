@@ -98,15 +98,16 @@
   }
 
   // 予約処理の開始と次のページへの遷移
-  const shopList = []
-  for (const s of sortedShops.value) {
-    shopList.push({
-      id: s.id,
-      name: s.displayName.text,
-      tel: s.nationalPhoneNumber,
-    })
-  }
   const startReserve = async () => {
+    const shopList = []
+    for (const s of sortedShops.value) {
+      console.log(s)
+      shopList.push({
+        id: s.id,
+        name: s.displayName.text,
+        tel: s.nationalPhoneNumber,
+      })
+    }
     // Firestoreにデータの保存
     const res = await postStartReserve(
       reserveId.value,
