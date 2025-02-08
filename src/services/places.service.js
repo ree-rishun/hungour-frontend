@@ -7,7 +7,7 @@ export const getPlaces = async (
   text = '居酒屋',
 ) => {
   return await apiClient.post(
-    '/api/places/',
+    '/places/',
     {
       text: text,
       lat: location.lat,

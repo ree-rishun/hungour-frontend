@@ -11,7 +11,7 @@ export const postReserve = async (
   const liffStore = useStoreLiff()
   const profile = await liffStore.getProfile()
   return await apiClient.post(
-    '/api/reserves/',
+    '/reserves/',
     {
       user_id: profile.userId,
       shops: shops,
@@ -28,7 +28,7 @@ export const postStartReserve = async (
   shops,
 ) => {
   return await apiClient.post(
-    `/api/reserves/${reserveId}/start`,
+    `/reserves/${reserveId}/start`,
     {
       shops: shops,
     }
@@ -39,6 +39,6 @@ export const getReserve = async (
   reserveId,
 ) => {
   return await apiClient.get(
-    `/api/reserves/${reserveId}/`
+    `/reserves/${reserveId}/`
   )
 }

@@ -7,7 +7,7 @@ export const userSignin = async (
   displayName,
 ) => {
   return await apiClient.post(
-    '/api/users/signin',
+    '/users/signin',
     {
       user_id: userId,
       icon_url: iconUrl,
@@ -23,7 +23,7 @@ export const activateUser = async (
   const liffStore = useStoreLiff()
   const profile = await liffStore.getProfile()
   return await apiClient.post(
-    '/api/users/activate',
+    '/users/activate',
     {
       user_id: profile.userId,
       reserve_name: reserveName,
