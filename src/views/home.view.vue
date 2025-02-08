@@ -94,7 +94,6 @@
   const getAddress = async () => {
     // 現在の住所を表示
     const res = await getGeocode(location.value)
-    console.log(res)
     currentAddress.value = buildShortAddress(res.data.results[0])
   }
 
