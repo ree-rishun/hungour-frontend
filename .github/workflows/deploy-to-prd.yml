@@ -8,10 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Set up environment variables
+        run: |
+          echo "VITE_LIFF_ID=${{ vars.PRD_LIFF_ID }}" >> .env
+          echo "VITE_API_URL=${{ vars.PRD_API_URL }}" >> .env
       - run: npm ci && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
           channelId: live
           firebaseServiceAccount: '${{ secrets.PRD_FIREBASE_SERVICE_ACCOUNT }}'
           projectId: '${{ vars.PRD_PROJECT_ID }}'

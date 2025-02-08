@@ -18,10 +18,6 @@ export default defineConfig({
       }
     }
   },
-  define: {
-    'import.meta.env.VITE_API_URL': 'window.__ENV__.VITE_API_URL',
-    'import.meta.env.VITE_LIFF_ID': 'window.__ENV__.VITE_LIFF_ID',
-  },
   server: {
     port: 8080
   }
