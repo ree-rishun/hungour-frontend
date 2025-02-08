@@ -1,4 +1,4 @@
-import { apiClient } from './apiClient.js'
+import { apiClient, API_URL } from './apiClient.js'
 
 // 飲食店一覧の検索
 export const getPlaces = async (
@@ -19,4 +19,8 @@ export const getPlaces = async (
       departure_in_minutes: 5,
     }
   )
+}
+
+export const getPlacesPhoto = (r) => {
+  return `${API_URL}/places/photos?name=${r}`
 }
