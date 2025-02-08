@@ -31,6 +31,7 @@
 </template>
 <script setup>
   import {ref, onMounted, watchEffect} from 'vue'
+  import { getPlacesPhoto } from '@/services/places.service.js'
 
   const props = defineProps({
     shops: {
@@ -122,7 +123,7 @@
   }
 
   const getPhoto = (r) => {
-    return `http://127.0.0.1:5001/hunger-gourmet/asia-northeast1/api/places/photos?name=${r}`
+    return getPlacesPhoto(r)
   }
 
   watchEffect(

@@ -34,6 +34,7 @@
     class="bottom_area">
     <buttonComponent
       text="予約開始"
+      :enable="true"
       @clicked="startReserve" />
   </div>
 </template>
