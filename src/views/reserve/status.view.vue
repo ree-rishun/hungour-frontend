@@ -77,7 +77,7 @@
 
       <button
         @click="() => {
-          window.open(reserveList[reserveCursor]?., '_blank')
+          window.open(reserveList[reserveCursor]?.googleMapsLinks.placeUri, '_blank')
         }">
         GoogleMapで開く
       </button>
