@@ -187,7 +187,7 @@
     background-color: rgba(0,0,0,.7);
   }
   .current-review {
-    padding: 64px 0 0;
+    padding: 32px 0 0;
     text-align: center;
     color: $color-primary-main;
     font-size: 16px;

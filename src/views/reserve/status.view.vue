@@ -75,7 +75,10 @@
         </li>
       </ul>
 
-      <button>
+      <button
+        @click="() => {
+          window.open(reserveList[reserveCursor]?., '_blank')
+        }">
         GoogleMapで開く
       </button>
     </div>

@@ -61,6 +61,7 @@
   import sectionSubTitleComponent from '@/components/shared/sectionSubTitle.component.vue'
   import listSelectorComponent from '@/components/shared/listSelector.component.vue'
   import matchModalComponent from '@/components/home/matchModal.component.vue'
+  import matchModalCoverComponent from '@/components/home/matchModalCover.component.vue'
   import buttonComponent from '@/components/shared/button.component.vue'
   import { getPlaces } from '@/services/places.service.js'
   import { getGeocode } from '@/services/geocode.service.js'
