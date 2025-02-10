@@ -28,11 +28,12 @@
     type="tel"
     placeholder="09012341234"
     v-model="userTel">
+  <!--
   <button
     class="send_otp_button"
     @click="sendOtp">
     認証コードを送信
-  </button>
+  </button>-->
 
   <div
     v-if="confirmationResult">
@@ -53,7 +54,7 @@
     class="bottom_area">
     <buttonComponent
       text="登録する"
-      :enable="userName !== '' && userTel !== '' && confirmationResult"
+      :enable="userName !== '' && userTel !== ''"
       @clicked="submit" />
   </div>
 </template>
@@ -81,6 +82,8 @@
       userName.value,
       userTel.value,
     )
+    router.push('/')
+    return
     try {
       const userCredential = await confirmationResult.value.confirm(otpCode.value)
       console.log('認証成功:', userCredential.user)
@@ -89,8 +92,6 @@
       console.error('認証エラー:', error)
       alert('認証コードが間違っています')
     }
-
-    router.push('/')
   }
   const sendOtp = async () => {
     if (userTel.value.length < 10) {
