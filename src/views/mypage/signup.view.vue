@@ -29,23 +29,31 @@
     placeholder="09012341234"
     v-model="userTel">
   <button
+    class="send_otp_button"
     @click="sendOtp">
     認証コードを送信
   </button>
 
-  <input
-    type="text" />
-  <button
-    >
-    認証
-  </button>
-  <div id="recaptcha-container"></div>
+  <div
+    v-if="confirmationResult">
+    <sectionSubTitleComponent
+      title="確認コードを入力"/>
+    <p
+      class="plane_text">
+      入力した番号に確認コードを送信しました。
+    </p>
+    <input
+      type="text"
+      placeholder="000000"
+      v-model="otpCode"/>
+    <div id="recaptcha-container"></div>
+  </div>
 
   <div
     class="bottom_area">
     <buttonComponent
       text="登録する"
-      :enable="userName !== '' && userTel !== ''"
+      :enable="userName !== '' && userTel !== '' && confirmationResult"
       @clicked="submit" />
   </div>
 </template>
@@ -73,14 +81,23 @@
       userName.value,
       userTel.value,
     )
+    try {
+      const userCredential = await confirmationResult.value.confirm(otpCode.value)
+      console.log('認証成功:', userCredential.user)
+      alert('電話番号認証成功')
+    } catch (error) {
+      console.error('認証エラー:', error)
+      alert('認証コードが間違っています')
+    }
 
     router.push('/')
   }
   const sendOtp = async () => {
+    if (!isValidPhoneNumber(userTel.value)) {
+      return
+    }
     const a = await initializeApp(firebaseConfig)
     const auth = await getAuth(a)
-    console.log(auth)
-    console.log(formatPhoneNumber(userTel.value))
     await auth.useDeviceLanguage()
     window.recaptchaVerifier = new RecaptchaVerifier(
       auth,
@@ -91,34 +108,34 @@
     try {
       confirmationResult.value = await signInWithPhoneNumber(
         auth,
-        formatPhoneNumber(userTel.value),
+        formatPhoneNumber(userTel.value.replace(/[-\s]/g, '')),
         window.recaptchaVerifier
       )
-      alert('SMSを送信しました')
     } catch (error) {
       console.error('SMS送信エラー:', error)
       alert('SMS送信に失敗しました')
     }
   }
 
-  const verifyOtp = async () => {
-    if (!confirmationResult.value) {
-      alert('まずSMSを送信してください')
-      return
-    }
-
-    try {
-      const userCredential = await confirmationResult.value.confirm(otpCode.value)
-      console.log('認証成功:', userCredential.user)
-      alert('電話番号認証成功')
-    } catch (error) {
-      console.error('認証エラー:', error)
-      alert('認証コードが間違っています')
-    }
-  }
-
   function formatPhoneNumber(phoneNumber) {
     return phoneNumber.startsWith('0') ? '+81' + phoneNumber.slice(1) : phoneNumber
+  }
+
+  function isValidPhoneNumber(phoneNumber) {
+    // ハイフンを除去
+    const cleanedNumber = phoneNumber.replace(/-/g, '')
+
+    // 日本の一般的な携帯番号（090, 080, 070）や市外局番に対応
+    const domesticPattern = /^[0-9]{10}$/ // 10桁の数字のみ
+
+    // 国際コード付き（+81や+1など）の場合（+から始まり、国番号+数字9~11桁）
+    const internationalPattern = /^\+\d{1,4}[0-9]{9,11}$/
+
+    if (domesticPattern.test(cleanedNumber) || internationalPattern.test(cleanedNumber)) {
+      return true
+    } else {
+      return false
+    }
   }
 </script>
 
@@ -150,5 +167,17 @@
     left: 0;
     width: calc(100% - 32px);
     padding: 0 16px 16px;
+  }
+  .send_otp_button {
+    display: inline-block;
+    width: 160px;
+    height: 48px;
+    line-height: 48px;
+    margin: 8px 0 0;
+    border-radius: 4px;
+    background-color: $color-primary-main;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 16px;
   }
 </style>
