@@ -93,7 +93,7 @@
     router.push('/')
   }
   const sendOtp = async () => {
-    if (!isValidPhoneNumber(userTel.value)) {
+    if (userTel.value.length < 10) {
       return
     }
     const a = await initializeApp(firebaseConfig)
