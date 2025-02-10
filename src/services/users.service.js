@@ -1,12 +1,15 @@
 import { apiClient } from './apiClient.js'
 import { useStoreLiff } from '@/store/liff.store.js'
+import { getAuth, signInWithCustomToken } from 'firebase/auth'
+import {firebaseConfig} from '../config/firebase-config'
+import {initializeApp} from 'firebase/app'
 
 export const userSignin = async (
   userId,
   iconUrl,
   displayName,
 ) => {
-  return await apiClient.post(
+   const res = await apiClient.post(
     '/users/signin',
     {
       user_id: userId,
@@ -14,6 +17,8 @@ export const userSignin = async (
       display_name: displayName,
     }
   )
+  const auth = getAuth()
+  await signInWithCustomToken(auth, res.data.token)
 }
 
 export const activateUser = async (

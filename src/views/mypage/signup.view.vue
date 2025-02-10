@@ -28,6 +28,18 @@
     type="tel"
     placeholder="09012341234"
     v-model="userTel">
+  <button
+    @click="sendOtp">
+    認証コードを送信
+  </button>
+
+  <input
+    type="text" />
+  <button
+    >
+    認証
+  </button>
+  <div id="recaptcha-container"></div>
 
   <div
     class="bottom_area">
@@ -46,10 +58,15 @@
   import sectionSubTitleComponent from '@/components/shared/sectionSubTitle.component.vue'
   import buttonComponent from '@/components/shared/button.component.vue'
   import { activateUser } from '@/services/users.service.js'
+  import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
+  import { initializeApp } from 'firebase/app'
+  import { firebaseConfig } from '@/config/firebase-config.js'
 
   const router = useRouter()
   const userName = ref('')
   const userTel = ref('')
+  const otpCode = ref('')
+  const confirmationResult = ref(null)
 
   const submit = async () => {
     await activateUser(
@@ -58,6 +75,50 @@
     )
 
     router.push('/')
+  }
+  const sendOtp = async () => {
+    const a = await initializeApp(firebaseConfig)
+    const auth = await getAuth(a)
+    console.log(auth)
+    console.log(formatPhoneNumber(userTel.value))
+    await auth.useDeviceLanguage()
+    window.recaptchaVerifier = new RecaptchaVerifier(
+      auth,
+      'recaptcha-container', {
+      size: 'invisible',
+      callback: () => console.log('reCAPTCHA solved')
+    })
+    try {
+      confirmationResult.value = await signInWithPhoneNumber(
+        auth,
+        formatPhoneNumber(userTel.value),
+        window.recaptchaVerifier
+      )
+      alert('SMSを送信しました')
+    } catch (error) {
+      console.error('SMS送信エラー:', error)
+      alert('SMS送信に失敗しました')
+    }
+  }
+
+  const verifyOtp = async () => {
+    if (!confirmationResult.value) {
+      alert('まずSMSを送信してください')
+      return
+    }
+
+    try {
+      const userCredential = await confirmationResult.value.confirm(otpCode.value)
+      console.log('認証成功:', userCredential.user)
+      alert('電話番号認証成功')
+    } catch (error) {
+      console.error('認証エラー:', error)
+      alert('認証コードが間違っています')
+    }
+  }
+
+  function formatPhoneNumber(phoneNumber) {
+    return phoneNumber.startsWith('0') ? '+81' + phoneNumber.slice(1) : phoneNumber
   }
 </script>
 
