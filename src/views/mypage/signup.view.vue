@@ -176,7 +176,7 @@
     margin: 8px 0 0;
     border-radius: 4px;
     background-color: $color-primary-main;
-    color: #ffffff;
+    color: $color-black;
     font-weight: bold;
     font-size: 16px;
   }
